@@ -96,10 +96,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MotorVisualizador.cs" />
-    <Compile Include="MotorAudio.cs" />
-    <Compile Include="GestorPlaylists.cs" />
-    <Compile Include="GestorSkins.cs" />
+    <Compile Include="UI\MotorVisualizador.cs" />
+    <Compile Include="Core\MotorAudio.cs" />
+    <Compile Include="Core\GestorPlaylists.cs" />
+    <Compile Include="Core\GestorSkins.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
