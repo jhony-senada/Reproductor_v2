@@ -14,7 +14,8 @@
         <SolidColorBrush x:Key="ColorLetras" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="Barras" Color="#E65E39"/>
         <SolidColorBrush x:Key="ColorOscilo" Color="Red"/>
-
+        <SolidColorBrush x:Key="ColorKaraoke" Color="Yellow"/>
+        
         <FontFamily x:Key="FuentePrincipal">Segoe UI</FontFamily>
         <FontFamily x:Key="FuenteLetra">Segoe UI</FontFamily>
 

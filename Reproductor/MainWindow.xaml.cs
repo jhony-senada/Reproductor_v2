@@ -6,6 +6,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Linq;
+using System.Windows.Media;
+using System.Windows.Documents;
 
 namespace Reproductor
 {
@@ -21,8 +24,8 @@ namespace Reproductor
         private bool isDraggingSlider = false;
 
         private DispatcherTimer relojUI;
-        private Dictionary<TimeSpan, string> diccionarioLetras = new Dictionary<TimeSpan, string>();
-        private List<TimeSpan> tiemposLetras = new List<TimeSpan>();
+        private List<LineaLetra> letrasKaraoke = new List<LineaLetra>();
+        private LineaLetra lineaKaraokeActual = null;
 
         public MainWindow()
         {
@@ -253,13 +256,39 @@ namespace Reproductor
                 TextoTiempoActual.Text = posActual.ToString(@"mm\:ss");
                 TextoTiempoTotal.Text = total.ToString(@"mm\:ss");
 
-                string letraActiva = "";
-                foreach (TimeSpan tiempo in tiemposLetras)
+                LineaLetra lineaActiva = null;
+                foreach (LineaLetra linea in letrasKaraoke)
                 {
-                    if (posActual >= tiempo) letraActiva = diccionarioLetras[tiempo];
+                    if (posActual >= linea.Tiempo) lineaActiva = linea;
                     else break;
                 }
-                if (!string.IsNullOrEmpty(letraActiva)) TextoLetras.Text = letraActiva;
+
+                if (lineaActiva != null)
+                {
+                    SolidColorBrush colorCantado = (SolidColorBrush)Application.Current.Resources["ColorKaraoke"];
+                    SolidColorBrush colorNormal = (SolidColorBrush)Application.Current.Resources["ColorLetras"];
+
+                    if (lineaKaraokeActual != lineaActiva)
+                    {
+                        lineaKaraokeActual = lineaActiva;
+                        TextoLetras.Inlines.Clear();
+                        foreach (var silaba in lineaActiva.Silabas)
+                        {
+                            TextoLetras.Inlines.Add(new Run(silaba.Texto));
+                        }
+                    }
+
+                    for (int i = 0; i < lineaActiva.Silabas.Count; i++)
+                    {
+                        Run palabraUI = (Run)TextoLetras.Inlines.ElementAt(i);
+                        palabraUI.Foreground = (posActual >= lineaActiva.Silabas[i].Tiempo) ? colorCantado : colorNormal;
+                    }
+                }
+                else
+                {
+                    TextoLetras.Text = "";
+                    lineaKaraokeActual = null;
+                }
 
                 double[] gananciasEcualizador = new double[]
                 {
@@ -286,7 +315,10 @@ namespace Reproductor
 
         private void CargarLetras(string rutaAudio)
         {
-            diccionarioLetras.Clear(); tiemposLetras.Clear(); TextoLetras.Text = "";
+            letrasKaraoke.Clear();
+            TextoLetras.Text = "";
+            lineaKaraokeActual = null;
+
             string rutaLrc = System.IO.Path.ChangeExtension(rutaAudio, ".lrc");
             if (System.IO.File.Exists(rutaLrc))
             {
@@ -296,18 +328,56 @@ namespace Reproductor
                     if (linea.StartsWith("[") && linea.Contains("]"))
                     {
                         int indexCierre = linea.IndexOf("]");
-                        string tiempoStr = linea.Substring(1, indexCierre - 1);
-                        string texto = linea.Substring(indexCierre + 1).Trim();
-                        string[] partes = tiempoStr.Split(':');
-                        if (partes.Length >= 2 && double.TryParse(partes[0], out double minutos) && double.TryParse(partes[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double segundos))
+                        string tiempoLineaStr = linea.Substring(1, indexCierre - 1);
+                        string contenido = linea.Substring(indexCierre + 1);
+
+                        TimeSpan tiempoLinea = ParsearTiempo(tiempoLineaStr);
+                        if (tiempoLinea == TimeSpan.Zero && tiempoLineaStr != "00:00.00" && tiempoLineaStr != "00:00.0") continue;
+
+                        LineaLetra nuevaLinea = new LineaLetra { Tiempo = tiempoLinea };
+
+                        if (contenido.Contains("<") && contenido.Contains(">"))
                         {
-                            TimeSpan ts = TimeSpan.FromSeconds((minutos * 60) + segundos);
-                            diccionarioLetras[ts] = texto; tiemposLetras.Add(ts);
+                            string[] partes = contenido.Split('<');
+                            foreach (string parte in partes)
+                            {
+                                if (string.IsNullOrEmpty(parte)) continue;
+
+                                int cierreTag = parte.IndexOf(">");
+                                if (cierreTag != -1)
+                                {
+                                    string tiempoSilabaStr = parte.Substring(0, cierreTag);
+                                    string textoSilaba = parte.Substring(cierreTag + 1);
+                                    nuevaLinea.Silabas.Add(new Silaba { Tiempo = ParsearTiempo(tiempoSilabaStr), Texto = textoSilaba });
+                                }
+                                else
+                                {
+                                    nuevaLinea.Silabas.Add(new Silaba { Tiempo = tiempoLinea, Texto = parte });
+                                }
+                            }
                         }
+                        else
+                        {
+                            nuevaLinea.Silabas.Add(new Silaba { Tiempo = tiempoLinea, Texto = contenido });
+                        }
+
+                        letrasKaraoke.Add(nuevaLinea);
                     }
                 }
-                tiemposLetras.Sort();
+                letrasKaraoke.Sort((a, b) => a.Tiempo.CompareTo(b.Tiempo));
             }
+        }
+
+        private TimeSpan ParsearTiempo(string tiempoStr)
+        {
+            string[] partes = tiempoStr.Split(':');
+            if (partes.Length >= 2 &&
+                double.TryParse(partes[0], out double minutos) &&
+                double.TryParse(partes[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double segundos))
+            {
+                return TimeSpan.FromSeconds((minutos * 60) + segundos);
+            }
+            return TimeSpan.Zero;
         }
 
         private void SliderVolumen_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ActualizarVolumenTotal();
@@ -384,5 +454,16 @@ namespace Reproductor
             }
             catch { }
         }
+    }
+    public class LineaLetra
+    {
+        public TimeSpan Tiempo { get; set; }
+        public List<Silaba> Silabas { get; set; } = new List<Silaba>();
+    }
+
+    public class Silaba
+    {
+        public TimeSpan Tiempo { get; set; }
+        public string Texto { get; set; }
     }
 }

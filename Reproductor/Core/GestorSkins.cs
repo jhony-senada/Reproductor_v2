@@ -86,7 +86,8 @@ ColorLetras=#FFFFFF
 FuentePrincipal=Segoe UI
 FuenteLetra=Chiller
 Barras=#E65E39
-ColorOscilo=Red";
+ColorOscilo=Red
+ColorKaraoke=#FFD700";
             File.WriteAllText(rutaYuki, contenidoYuki);
 
             string rutaHacker = Path.Combine(rutaSkins, "DarkHacker.skin");
@@ -101,7 +102,8 @@ ColorLetras=#20C20E
 FuentePrincipal=Lucida Console
 FuenteLetra=Courier New
 Barras=#A2E639
-ColorOscilo=#39FF14";
+ColorOscilo=#39FF14
+ColorKaraoke=#FFFFFF";
             File.WriteAllText(rutaHacker, contenidoHacker);
         }
     }

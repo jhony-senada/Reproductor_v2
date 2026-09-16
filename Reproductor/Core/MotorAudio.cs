@@ -1,6 +1,6 @@
-﻿using System;
+﻿using NAudio.Dsp;
 using NAudio.Wave;
-using NAudio.Dsp;
+using System;
 
 namespace Reproductor
 {
