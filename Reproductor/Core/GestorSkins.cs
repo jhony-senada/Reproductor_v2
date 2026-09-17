@@ -21,8 +21,8 @@ namespace Reproductor
             if (!Directory.Exists(rutaSkins))
             {
                 Directory.CreateDirectory(rutaSkins);
-                CrearSkinsPorDefecto();
             }
+                CrearSkinsPorDefecto();
         }
 
         public List<string> ObtenerListaSkins()
@@ -58,7 +58,27 @@ namespace Reproductor
                         {
                             if (nombreVariable.StartsWith("Fuente"))
                             {
-                                Application.Current.Resources[nombreVariable] = new FontFamily(valor);
+                                if (valor.StartsWith("Local:"))
+                                {
+                                    // Es una fuente externa importada por el usuario
+                                    string nombreArchivo = valor.Substring(6).Split('#')[0];
+                                    string nombreInterno = valor.Substring(6).Split('#')[1];
+
+                                    string rutaCarpeta = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Skins", "Fuentes");
+                                    string uriCarpeta = "file:///" + rutaCarpeta.Replace('\\', '/') + "/";
+
+                                    Application.Current.Resources[nombreVariable] = new FontFamily(new Uri(uriCarpeta), "./#" + nombreInterno);
+                                }
+                                else if (valor.StartsWith(".") || valor.StartsWith("/"))
+                                {
+                                    // Usamos el constructor de dos parámetros (Base Uri + ruta relativa) para que WPF resuelva el punto correctamente
+                                    Application.Current.Resources[nombreVariable] = new FontFamily(new Uri("pack://application:,,,/"), valor);
+                                }
+                                else
+                                {
+                                    // Es una fuente normal de Windows (Ej. Segoe UI)
+                                    Application.Current.Resources[nombreVariable] = new FontFamily(valor);
+                                }
                             }
                             else
                             {
@@ -84,7 +104,7 @@ ColorBtnCerrar=DarkRed
 ColorBtnMinimizar=#444444
 ColorLetras=#FFFFFF
 FuentePrincipal=Segoe UI
-FuenteLetra=Chiller
+FuenteLetra=./assets/Fuentes/chiller.ttf#Chiller
 Barras=#E65E39
 ColorOscilo=Red
 ColorKaraoke=#FFD700";

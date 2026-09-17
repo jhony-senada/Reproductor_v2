@@ -422,6 +422,23 @@ namespace Reproductor
         private void BtnEqPop_Click(object sender, RoutedEventArgs e) => AplicarPreset(new double[] { -2, -1, 1, 3, 4, 4, 2, 0, -1, -2 });
         private void BtnEqFlat_Click(object sender, RoutedEventArgs e) { AplicarPreset(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }); EQ_Pre.Value = 0; }
 
+        private void BtnAbrirCreador_Click(object sender, RoutedEventArgs e)
+        {
+            CreadorSkins ventanaCreador = new CreadorSkins();
+            // ShowDialog pausa la ventana principal hasta que cierres el creador
+            ventanaCreador.ShowDialog();
+
+            // Cuando el usuario cierra el creador, recargamos la lista para que aparezca la nueva skin
+            CargarListaSkins();
+        }
+        private void BtnAbrirLRCMaker_Click(object sender, RoutedEventArgs e)
+        {
+            // Pausamos el audio principal por si estaba sonando
+            if (motorAudio != null && motorAudio.IsPlaying) motorAudio.AlternarPlayPause();
+
+            CreadorLRC ventanaLRC = new CreadorLRC(gestorPlaylists.RutasInternas);
+            ventanaLRC.ShowDialog();
+        }
         private void BtnEqGuardar_Click(object sender, RoutedEventArgs e)
         {
             try

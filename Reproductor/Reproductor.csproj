@@ -88,6 +88,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="CreadorLRC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CreadorSkins.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -95,6 +103,12 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CreadorLRC.xaml.cs">
+      <DependentUpon>CreadorLRC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CreadorSkins.xaml.cs">
+      <DependentUpon>CreadorSkins.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\MotorVisualizador.cs" />
     <Compile Include="Core\MotorAudio.cs" />
@@ -123,6 +137,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Resource Include="assets\Fuentes\chiller.ttf" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

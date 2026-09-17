@@ -7,7 +7,7 @@
         FontFamily="{DynamicResource FuentePrincipal}"
         TextElement.FontFamily="{DynamicResource FuentePrincipal}"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
-        Title="Reproductor V1" Height="300" Width="400">
+        Title="Reproductor V1" Height="400" Width="500">
     <Grid>
         <Grid x:Name="Principal">
             <Grid.RowDefinitions>
@@ -79,6 +79,7 @@
                             <WrapPanel Grid.Row="1" Orientation="Horizontal" Margin="10,10,10,5">
                                 <Button Content="+ Añadir Música" Width="120" Height="25" Background="#333333" Foreground="White" BorderThickness="0" Cursor="Hand" Click="BtnAgregarCancion_Click" Margin="0,0,10,5"/>
                                 <Button Content="🗑 Eliminar" Width="100" Height="25" Background="DarkRed" Foreground="White" BorderThickness="0" Cursor="Hand" Click="BtnEliminarCancion_Click" Margin="0,0,10,5"/>
+                                <Button Content="🎤 LRC Maker" Width="100" Height="25" Background="#551a8b" Foreground="White" BorderThickness="0" Cursor="Hand" Click="BtnAbrirLRCMaker_Click" Margin="0,0,10,5"/>
                             </WrapPanel>
                             <ListBox x:Name="ListaVisualCanciones" Grid.Row="2" Background="Transparent" Foreground="White" BorderThickness="0" Margin="10,0,10,10" SelectionChanged="ListaVisualCanciones_SelectionChanged"/>
                         </Grid>
@@ -88,6 +89,9 @@
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="SELECCIONA UN TEMA" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                                 <ListBox x:Name="ListaSkins" Width="200" Height="100" Background="#222222" Foreground="White" BorderThickness="0" Margin="0,0,0,10"/>
+                                <Button Content="+ Crear Tema Nuevo" Width="120" Height="25" 
+        Background="#333333" Foreground="White" BorderThickness="0" 
+        Cursor="Hand" Click="BtnAbrirCreador_Click" Margin="0,0,0,10"/>
                                 <Button Content="Aplicar Skin" Width="120" Height="30" Background="{DynamicResource ColorBtnCerrar}" Foreground="White" BorderThickness="0" Cursor="Hand" Click="BtnAplicarSkin_Click"/>
                             </StackPanel>
                         </Grid>
