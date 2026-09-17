@@ -25,6 +25,8 @@ namespace Reproductor
 
         private Image imgPortada = new Image();
         private BitmapImage portadaActual = null;
+        private double anguloDisco = 0;
+        private Ellipse agujeroDisco = new Ellipse();
 
         public MotorVisualizador(Canvas canvasDestino)
         {
@@ -36,7 +38,7 @@ namespace Reproductor
         public void CambiarModo()
         {
             modoVisualizador++;
-            if (modoVisualizador > 3) modoVisualizador = 0;
+            if (modoVisualizador > 4) modoVisualizador = 0;
             LimpiarLienzo();
         }
 
@@ -46,6 +48,8 @@ namespace Reproductor
             particulasActivas.Clear();
             barrasFuego.Clear();
             lineaOnda.Points.Clear();
+            imgPortada.Clip = null;
+            imgPortada.RenderTransform = null;
         }
 
         public void ActualizarCancionActual(string rutaCancion)
@@ -65,6 +69,7 @@ namespace Reproductor
                 case 1: RenderizarOsciloscopio(pico, magnitudesFft, gananciasEcualizador); break;
                 case 2: RenderizarFractal(pico); break;
                 case 3: RenderizarPortadaReactiva(pico); break;
+                case 4: RenderizarDisco(); break; 
             }
         }
 
@@ -197,7 +202,45 @@ namespace Reproductor
                 lineaOnda.Points.Add(new Point(centroX + (coordX / 5.0) * amplitudGlobal, centroY + (coordY / 5.0) * amplitudGlobal));
             }
         }
+        private void RenderizarDisco()
+        {
+            if (portadaActual == null) return;
 
+            // Asegurarnos de que la imagen y el agujero están en el lienzo
+            if (!lienzo.Children.Contains(imgPortada)) lienzo.Children.Add(imgPortada);
+            if (!lienzo.Children.Contains(agujeroDisco)) lienzo.Children.Add(agujeroDisco);
+
+            double tamano = Math.Min(lienzo.ActualWidth, lienzo.ActualHeight) * 0.8;
+            if (tamano <= 0) return;
+
+            // 1. Reciclar imgPortada y hacerla circular
+            imgPortada.Width = tamano;
+            imgPortada.Height = tamano;
+            imgPortada.Clip = new EllipseGeometry(new Point(tamano / 2, tamano / 2), tamano / 2, tamano / 2);
+
+            // Centrar la imagen en el canvas
+            Canvas.SetLeft(imgPortada, (lienzo.ActualWidth - tamano) / 2);
+            Canvas.SetTop(imgPortada, (lienzo.ActualHeight - tamano) / 2);
+
+            // Rotar la imagen sobre su propio centro
+            anguloDisco += 1.0;
+            if (anguloDisco >= 360) anguloDisco = 0;
+            imgPortada.RenderTransform = new RotateTransform(anguloDisco, tamano / 2, tamano / 2);
+
+            // 2. Dibujar y centrar el agujero del vinilo
+            double tamanoAgujero = tamano * 0.15;
+            agujeroDisco.Width = tamanoAgujero;
+            agujeroDisco.Height = tamanoAgujero;
+
+            // Usamos el color de fondo dinámico de la skin para que el agujero se "fusione"
+            agujeroDisco.Fill = (SolidColorBrush)Application.Current.FindResource("ColorFondoPrincipal");
+
+            Canvas.SetLeft(agujeroDisco, (lienzo.ActualWidth - tamanoAgujero) / 2);
+            Canvas.SetTop(agujeroDisco, (lienzo.ActualHeight - tamanoAgujero) / 2);
+
+            // Asegurar que el agujero siempre esté encima de la portada
+            Panel.SetZIndex(agujeroDisco, 10);
+        }
         private void RenderizarFractal(float pico)
         {
             anguloEspiral += 0.05 + (pico * 0.2);
@@ -247,7 +290,6 @@ namespace Reproductor
                 }
             }
         }
-
         private class Particula { public Shape Forma { get; set; } public double X { get; set; } public double Y { get; set; } public double VelX { get; set; } public double VelY { get; set; } public double Vida { get; set; } }
     }
 }
